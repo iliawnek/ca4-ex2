@@ -10,7 +10,7 @@ import HDL.Hydra.Circuits.Register
 
 import ControlSignals
 import ALU
-
+import Multiply
 
 ------------------------------------------------------------------------
 --			       Datapath
@@ -21,12 +21,12 @@ interconnections.  It has two inputs: a set of control signals
 provided by the control unit, and a data word from the either the
 memory system or the DMA input controller. -}
 
-datapath ctlsigs memdat = (ma,md,cond,a,b,ir,pc,ad,ovfl,r,x,y,p)
+datapath ctlsigs memdat = (ma,md,cond,a,b,ir,pc,ad,ovfl,r,x,y,p,ready,prod,rx,ry,s)
   where
 
 -- Size parameters
       n = 16    -- word size
-      k =  4    -- the register file contains 2^k registers 
+      k =  4    -- the register file contains 2^k registers
 
 -- Registers
       (a,b) = regfile n k (ctl_rf_ld ctlsigs) ir_d rf_sa rf_sb p
@@ -38,6 +38,8 @@ datapath ctlsigs memdat = (ma,md,cond,a,b,ir,pc,ad,ovfl,r,x,y,p)
       (ovfl,r) = alu n (ctl_alu_a ctlsigs, ctl_alu_b ctlsigs,
                         ctl_alu_c ctlsigs, ctl_alu_d ctlsigs)
                        x y
+-- The binary multiplication functional unit
+      (ready,prod,rx,ry,s) = multiply n (ctl_mul_start ctlsigs) x y
 
 -- Internal processor signals
       x = mux1w (ctl_x_pc ctlsigs) a pc             -- alu input 1

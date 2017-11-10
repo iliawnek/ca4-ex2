@@ -53,4 +53,3 @@ alu n (a,b,c,d) x y = (cout,z)
     comp_bool = mux2 (c,d) zero lt_tc eq_tc gt_tc
     comp_word = boolword n comp_bool
     z = mux1w comparing sum comp_word
-

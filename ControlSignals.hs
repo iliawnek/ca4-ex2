@@ -19,11 +19,17 @@ data CtlSig a = CtlSig
    ctl_x_pc,    -- Transmit pc on x (if 0, transmit reg[sa])
    ctl_y_ad,    -- Transmit ad on y (if 0, transmit reg[sb])
 
+-- Controls for multiplication
+   ctl_rx_ld,   -- Load rx operand register for multiplication
+   ctl_ry_ld,   -- Load ry operand register for multiplication
+   ctl_mul_start, -- Start the iterative multiplication process
+
 -- Controls for register file
    ctl_rf_ld,   --  Load  register file (if 0, remain unchanged)
    ctl_rf_pc,   --   Input to register file is pc (if 0, check ctl_rf_alu)
    ctl_rf_alu,  -- Input to register file is ALU output r (if 0, use m)
    ctl_rf_sd,   -- Use ir_d as source a address (if 0, use ir_sa)
+   ctl_rf_prod, -- Input to register file is multiplication result prod
 
 -- Controls for system registers
    ctl_ir_ld,   -- Load ir register (if 0, remain unchanged)
@@ -44,7 +50,7 @@ data CtlState a = CtlState
    st_dispatch,
    st_add,
    st_sub,
-   st_mul0,
+   st_mul0, st_mul1, st_mul2,
    st_cmplt,
    st_cmpeq,
    st_cmpgt,
