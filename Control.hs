@@ -188,8 +188,8 @@ repeat forever
               reg[ir_d] := mem[ad]
                 assert [ctl_rf_ld]
             st_loadxi3:
-              reg[ir_sa] := reg[ir_sa]++
-                 assert [ctl_alu_abcd=1100, ctl_rf_alu, ctl_rf_ld]
+              reg[ir_sa]++
+                 assert [ctl_alu_abcd=1100, ctl_rf_alu, ctl_rf_ld, ctl_rf_inc]
 
         8 -> -- nop
         9 -> -- nop
@@ -306,6 +306,7 @@ control reset ir cond ready = (ctlstate,start,ctlsigs)
       ctl_ry_ld   = orw [st_mul0]
       ctl_rf_prod = orw [st_mul2]
       ctl_mul_start = orw [st_mul0]
+      ctl_rf_inc = orw [st_loadxi3]
 
       ctlsigs = CtlSig
         {ctl_alu_a,
@@ -322,6 +323,7 @@ control reset ir cond ready = (ctlstate,start,ctlsigs)
          ctl_rf_alu,
          ctl_rf_sd,
          ctl_rf_prod,
+         ctl_rf_inc,
          ctl_ir_ld,
          ctl_pc_ld,
          ctl_pc_ad,

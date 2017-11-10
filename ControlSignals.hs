@@ -30,6 +30,7 @@ data CtlSig a = CtlSig
    ctl_rf_alu,  -- Input to register file is ALU output r (if 0, use m)
    ctl_rf_sd,   -- Use ir_d as source a address (if 0, use ir_sa)
    ctl_rf_prod, -- Input to register file is multiplication result prod
+   ctl_rf_inc,  -- todo
 
 -- Controls for system registers
    ctl_ir_ld,   -- Load ir register (if 0, remain unchanged)
