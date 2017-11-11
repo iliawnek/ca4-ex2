@@ -1,0 +1,4 @@
+Verifying the correctness of the loadxi instruction was done by comparing the final m_out value of the output of LoadxiRun.hs with the expected sum of the array.
+
+Verifying the correctness of the mul instruction was done by comparing the prod value when ready = 1 of the output of MulRun.hs with the expected output for each of the four multiplications. For convenience, grep was used to filter the output:
+ghc -e main MulRun.hs | grep "ready = 1 prod ="

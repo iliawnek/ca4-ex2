@@ -16,7 +16,7 @@ arraysum =
      "f504", "000f",  -- 0007 jumpf R5,done[R0] ; if i>=n then goto done
      "f537", "0014",  -- 0009 loadxi R5,x[R3] ; R5 = x[i], R3 = R3 + 1
      "0445",          -- 000b add R4,R4,R5 ; sum := sum + x[i]
-     "0000",          -- 000c add R0,R0,R0 ; required for testing
+     "0000",          -- 000c add R0,R0,R0 ; for convenience while testing
 
      "f004", "0006", -- 000d jumpf R0, loop[R0] ; goto loop
 
@@ -25,7 +25,7 @@ arraysum =
      "d000",         -- 0011 trap R0,R0,R0 ; terminate
 
      "0006", -- 0012 n data 6
-     "0000", -- 0013 sum data 0
+     "0000", -- 0013 sum data 0, expected value 135 or $0087
      "0012", -- 0014 x data 18
      "0021", -- 0015 data 33
      "0015", -- 0016 data 21
