@@ -1,4 +1,152 @@
-Verifying the correctness of the loadxi instruction was done by comparing the final m_out value of the output of LoadxiRun.hs with the expected sum of the array.
+course: CA
+exercise: 2
+date: 2017-11-11
+author: Joseph O'Hagan, 2136120
+author: Ken Li, 2131620
 
-Verifying the correctness of the mul instruction was done by comparing the prod value when ready = 1 of the output of MulRun.hs with the expected output for each of the four multiplications. For convenience, grep was used to filter the output:
-ghc -e main MulRun.hs | grep "ready = 1 prod ="
+All parts of the exercise have been completed. Both LoadxiRun.hs and MulRun.hs compile, and appear to be working correctly.
+
+Verifying correctness of the loadxi instruction was done by comparing the final m_out value of the output of LoadxiRun.hs with the expected sum of the array.
+
+Verifying correctness of the mul instruction was done by comparing the prod value (whenever ready = 1) of the output of MulRun.hs with the expected output for each of the four multiplications. For convenience, grep was used to filter the output:
+
+ghc -e main MulRun.hs | grep "prod ="
+
+To implement the loadxi instruction, we took the following approach:
+
+- Firstly, we replicated the already-existing load instruction, but changing the name to loadxi. Wherever load is used, we also added a loadxi equivalent. This fulfils the first part of the instruction.
+- To perform the increment, we added an additional state to loadxi (4 in total).
+- We checked ALU.hs for the correct opcode for increment.
+- We realised that a new control would be required for incrementation where the register selected by ir_sa (the index register) would need to be loaded with the ALU input to the register file instead of the default ir_d.
+
+To implement the mul instruction, we took the following approach:
+
+- The multiply circuit was imported and used with the datapath. The outputs of multiply were passed through the outputs of the datapath circuit for display during simulation.
+- A new control signal was added to send a start signal to the multiply circuit.
+- Three states were required for the instruction in the control circuit. The first for loading the operands and signalling the control signal to start the multiplication. The second for looping while the multiplication was ongoing and the result not yet ready. And the third for storing the result of the multiplication into the destination register.
+- To allow the second state to loop, the ready signal from the multiply circuit was provided as an input to the control. Using this, we implemented it so that the state only transitions from second to third once ready transitions from 0 to 1.
+
+------------------------------------------------------------------------------
+Sample output of LoadxiRun.hs (abbreviated):
+------------------------------------------------------------------------------
+
+The following sequence of clock cycles executes loadxi R5,x[R3] where x = $0014 and R3 = i = 0.
+
+........................................................................
+This is the first of the four states. Here, we load the displacement address into the address register (since loadxi is an RX instruction). We also increment the program counter using the ALU. The address currently contains garbage (000f). Note that the program counter contains 000a.
+........................................................................
+Clock cycle 50
+ctl_start = 0
+
+Control state
+    st_loadxi0    = 1  st_loadxi1    = 0  st_loadxi2    = 0  st_loadxi3    = 0
+
+Control signals
+    ctl_alu_a     = 1  ctl_alu_b     = 1  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 1  ctl_y_ad      = 0  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 1  ctl_ad_ld     = 1  ctl_ad_alu    = 0  ctl_ma_pc     = 1
+    ctl_sto       = 0
+
+Datapath
+     ir = f537   pc = 000a   ad = 000f    a = 0000    b = 0000    r = 000b
+      x = 000a    y = 0000    p = 0014   ma = 000a   md = 0000  cnd = 0
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 000a  m_real_addr = 000a  m_data = 0000  m_out = 0014
+
+........................................................................
+This is the second state. Note that the address register is now loaded with x (0014), and the program counter has incremented from 000a to 000b.
+Now, we calculate the effective address in the address register. This is essentially an add of the current address register value and the index register in the register file (R3). Note that ad = 0014.
+........................................................................
+Clock cycle 51
+ctl_start = 0
+
+Control state
+    st_loadxi0    = 0  st_loadxi1    = 1  st_loadxi2    = 0  st_loadxi3    = 0
+
+Control signals
+    ctl_alu_a     = 0  ctl_alu_b     = 0  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 0  ctl_y_ad      = 1  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 0  ctl_ad_ld     = 1  ctl_ad_alu    = 1  ctl_ma_pc     = 0
+    ctl_sto       = 0
+
+Datapath
+     ir = f537   pc = 000b   ad = 0014    a = 0000    b = 0000    r = 0014
+      x = 0000    y = 0014    p = 0012   ma = 0014   md = 0000  cnd = 0
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 0014  m_real_addr = 0014  m_data = 0000  m_out = 0012
+
+Fetched displacement = 0014
+
+........................................................................
+This is the third state. Since R3 is 0, the address register remains at 0014.
+Now we load in the value x at address 0014 into the destination register, which happens to be 0012. Notice that the value from memory m_out is 0012.
+........................................................................
+Clock cycle 52
+ctl_start = 0
+
+Control state
+    st_loadxi0    = 0  st_loadxi1    = 0  st_loadxi2    = 1  st_loadxi3    = 0
+
+Control signals
+    ctl_alu_a     = 0  ctl_alu_b     = 0  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 0  ctl_y_ad      = 0  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 1  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 0  ctl_ad_ld     = 0  ctl_ad_alu    = 0  ctl_ma_pc     = 0
+    ctl_sto       = 0
+
+Datapath
+     ir = f537   pc = 000b   ad = 0014    a = 0000    b = 0000    r = 0000
+      x = 0000    y = 0000    p = 0012   ma = 0014   md = 0000  cnd = 0
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 0014  m_real_addr = 0014  m_data = 0000  m_out = 0012
+
+Register file update: R5 := 0012
+
+........................................................................
+This is the fourth and final state. Now we perform the incrementation by 1 of the index register R3. Since R3 is initially 0000, an increment by 1 operation will increase its value to 0001. This can be seen at p = 0001, which is the input to the register file.
+........................................................................
+Clock cycle 53
+ctl_start = 1
+
+Control state
+    st_loadxi0    = 0  st_loadxi1    = 0  st_loadxi2    = 0  st_loadxi3    = 1
+
+Control signals
+    ctl_alu_a     = 1  ctl_alu_b     = 1  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 0  ctl_y_ad      = 0  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 1  ctl_rf_pc     = 0  ctl_rf_alu    = 1
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 1  ctl_ir_ld     = 0
+    ctl_pc_ld     = 0  ctl_ad_ld     = 0  ctl_ad_alu    = 0  ctl_ma_pc     = 0
+    ctl_sto       = 0
+
+Datapath
+     ir = f537   pc = 000b   ad = 0014    a = 0000    b = 0000    r = 0001
+      x = 0000    y = 0000    p = 0001   ma = 0014   md = 0000  cnd = 0
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 0014  m_real_addr = 0014  m_data = 0000  m_out = 0012
+
+Register file update: R5 := 0001
+
+************************************************************************
+Executed instruction:  loadxi  R5,0014[R3]   effective address = 0014
+R5 := 0012 was loaded in cycle 52
+R5 := 0001 was loaded in cycle 53
+Processor state:    pc = 000b  ir = f537  ad = 0014
+************************************************************************
+
+------------------------------------------------------------------------------
+Sample output of MulRun.hs (abbreviated):
+------------------------------------------------------------------------------
