@@ -150,3 +150,168 @@ Processor state:    pc = 000b  ir = f537  ad = 0014
 ------------------------------------------------------------------------------
 Sample output of MulRun.hs (abbreviated):
 ------------------------------------------------------------------------------
+Clock cycle 59
+ctl_start = 1
+
+Control state
+        st_mul0 = 1      st_mul1 = 0      st_mul2 = 0     st_cmplt = 0
+
+Control signals
+    ctl_alu_a     = 0  ctl_alu_b     = 0  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 0  ctl_y_ad      = 0  ctl_rx_ld     = 1  ctl_ry_ld     = 1
+    ctl_mul_start = 1  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 0  ctl_ad_ld     = 0  ctl_ad_alu    = 0  ctl_ma_pc     = 0
+    ctl_sto       = 0
+
+Datapath
+     ir = 2723   pc = 000e   ad = 0018    a = 0002    b = 0003    r = 0005
+      x = 0002    y = 0003    p = 0000   ma = 0018   md = 0002  cnd = 1
+  ready = 1 prod = 00000002   rx = 0000   ry = 00000100    s = 00000102
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 0018  m_real_addr = 0018  m_data = 0002  m_out = 0000
+
+************************************************************************
+Executed instruction:  mul  R7,0018[R2]   effective address = 0018
+Processor state:    pc = 000e  ir = 2723  ad = 0018
+************************************************************************
+
+........................................................................
+The ctl_mul_start control signal indicates to start the multiply circuit. 
+The ctl_rx_ld and ctl_ry_ld control signals indicates to load the multiplication values a, b into rx and ry respectively. 
+The values to be multiplied are shown on the datapath as a, b and x, y and on the next clock cycle are loaded into rx and ry.
+........................................................................
+Clock cycle 60
+ctl_start = 0
+
+Control signals
+    ctl_alu_a     = 1  ctl_alu_b     = 1  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 1  ctl_y_ad      = 0  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 1
+    ctl_pc_ld     = 1  ctl_ad_ld     = 0  ctl_ad_alu    = 0  ctl_ma_pc     = 1
+    ctl_sto       = 0
+
+Datapath
+     ir = 2723   pc = 000e   ad = 0018    a = 0002    b = 0003    r = 000f
+      x = 000e    y = 0003    p = f602   ma = 000e   md = 0002  cnd = 1
+  ready = 0 prod = 00000000   rx = 0002   ry = 00000003    s = 00000003
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 000e  m_real_addr = 000e  m_data = 0002  m_out = f602
+
+........................................................................
+On the datapath the values for multiplication have now propagated through to rx and ry for the multiplication loop to proceed with the calculation.
+........................................................................
+Clock cycle 61
+ctl_start = 0
+
+Control signals
+    ctl_alu_a     = 0  ctl_alu_b     = 0  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 0  ctl_y_ad      = 0  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 0  ctl_ad_ld     = 0  ctl_ad_alu    = 0  ctl_ma_pc     = 0
+    ctl_sto       = 0
+
+Datapath
+     ir = f602   pc = 000f   ad = 0018    a = 0000    b = 0002    r = 0002
+      x = 0000    y = 0002    p = 0000   ma = 0018   md = 0000  cnd = 0
+  ready = 0 prod = 00000000   rx = 0001   ry = 00000006    s = 00000006
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 0018  m_real_addr = 0018  m_data = 0000  m_out = 0000
+
+........................................................................
+The multiplication process loops while the ready signal is not yet 1 to indicate the multiplication has finished and to store the calculated value.
+........................................................................
+Clock cycle 62
+ctl_start = 0
+
+Control state
+      st_store0 = 1    st_store1 = 0    st_store2 = 0     st_jump0 = 0
+
+Control signals
+    ctl_alu_a     = 1  ctl_alu_b     = 1  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 1  ctl_y_ad      = 0  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 1  ctl_ad_ld     = 1  ctl_ad_alu    = 0  ctl_ma_pc     = 1
+    ctl_sto       = 0
+
+Datapath
+     ir = f602   pc = 000f   ad = 0018    a = 0000    b = 0002    r = 0010
+      x = 000f    y = 0002    p = 0019   ma = 000f   md = 0000  cnd = 0
+  ready = 1 prod = 00000006   rx = 0000   ry = 0000000c    s = 00000012
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 000f  m_real_addr = 000f  m_data = 0000  m_out = 0019
+
+........................................................................
+The ready signal has been set to 1 to indicate that the multiplication loop has finished the the result should be stored in the destination register.
+This can be seen also in the control state from st_store0 = 1 which indicates a store operation should occur.
+On the datapath we can see that the result of the multiplication loop is shown in prod = ...
+........................................................................
+Clock cycle 63
+ctl_start = 0
+
+Control state
+      st_store0 = 0    st_store1 = 1    st_store2 = 0     st_jump0 = 0
+
+Control signals
+    ctl_alu_a     = 0  ctl_alu_b     = 0  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 0  ctl_y_ad      = 1  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 0  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 0  ctl_ad_ld     = 1  ctl_ad_alu    = 1  ctl_ma_pc     = 0
+    ctl_sto       = 0
+
+Datapath
+     ir = f602   pc = 0010   ad = 0019    a = 0000    b = 0002    r = 0019
+      x = 0000    y = 0019    p = 0000   ma = 0019   md = 0000  cnd = 0
+  ready = 1 prod = 00000006   rx = 0000   ry = 00000018    s = 0000001e
+
+Memory
+   ctl_sto = 0      m_sto = 0
+     m_addr = 0019  m_real_addr = 0019  m_data = 0000  m_out = 0000
+
+Fetched displacement = 0019
+
+........................................................................
+Clock cycle 64
+ctl_start = 1
+
+Control state
+      st_store0 = 0    st_store1 = 0    st_store2 = 1     st_jump0 = 0
+
+Control signals
+    ctl_alu_a     = 0  ctl_alu_b     = 0  ctl_alu_c     = 0  ctl_alu_d     = 0
+    ctl_x_pc      = 0  ctl_y_ad      = 0  ctl_rx_ld     = 0  ctl_ry_ld     = 0
+    ctl_mul_start = 0  ctl_rf_ld     = 0  ctl_rf_pc     = 0  ctl_rf_alu    = 0
+    ctl_rf_sd     = 1  ctl_rf_prod   = 0  ctl_rf_inc    = 0  ctl_ir_ld     = 0
+    ctl_pc_ld     = 0  ctl_ad_ld     = 0  ctl_ad_alu    = 0  ctl_ma_pc     = 0
+    ctl_sto       = 1
+
+Datapath
+     ir = f602   pc = 0010   ad = 0019    a = 0000    b = 0002    r = 0002
+      x = 0000    y = 0002    p = 0000   ma = 0019   md = 0000  cnd = 0
+  ready = 1 prod = 00000006   rx = 0000   ry = 00000030    s = 00000036
+
+Memory
+   ctl_sto = 1      m_sto = 1
+     m_addr = 0019  m_real_addr = 0019  m_data = 0000  m_out = 0000
+
+Memory store:  mem[0019] := 0000
+************************************************************************
+Executed instruction:  store  R6,0019[R0]   effective address = 0019
+mem[0019] := 0000 was stored in cycle 64
+Processor state:    pc = 0010  ir = f602  ad = 0019
+************************************************************************
+
+........................................................................
+The above two cycles show the result of the final result of multiplication (the value of prod on the datapath) being stored into the destination register.
